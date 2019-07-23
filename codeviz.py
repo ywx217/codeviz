@@ -29,7 +29,7 @@ class Node():
     def get_includes(self, filename):
         includes_re = re.compile(r'\s*#\s*include\s+["<](?P<file>.+?)[">]')
 
-        with open(filename, 'rt') as f:
+        with open(filename, 'rt', errors='ignore') as f:
             data = f.read()
 
         # Remove all comments
@@ -209,6 +209,7 @@ def get_files(ext_tpl):
             for f in files:
                 full_path = os.path.join(relpath, f).lstrip('./\\')
                 if full_path.endswith(ext_tpl) and full_path not in exclude_lst:
+                    full_path = full_path.replace('\\', '/')
                     files_lst.append(full_path)
     else:
         if args.filenames:
