@@ -21,9 +21,10 @@ class Node():
         self.includes  = self.get_includes(filename)
         self.highlight = False
 
-        if filename.endswith('.c') or filename.endswith('.cpp'):
+        ext = os.path.splitext(filename)[1]
+        if ext in {'.c', '.cc', '.cpp'}:
             self.filetype = 'source'
-        elif filename.endswith('.h'):
+        elif ext in {'.h', '.hpp'}:
             self.filetype = 'header'
 
     def get_includes(self, filename):
@@ -290,7 +291,7 @@ def main():
         print('{} {}'.format('codeviz', meta.__version__))
         return RetCode.OK
 
-    valid_exts = ('.c', '.h', '.cpp', '.hpp')
+    valid_exts = ('.c', '.h', '.cpp', '.hpp', '.cc')
 
     files = get_files(valid_exts)
     nodes = get_nodes(files)
