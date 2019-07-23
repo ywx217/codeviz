@@ -126,17 +126,20 @@ def get_nodes(files):
 
 def get_edges(nodes):
     edges = []
+    reachable_nodes = set()
 
     for start_node in nodes:
         for include_file in start_node.includes:
             end_node = find_node(nodes, include_file)
             if end_node:
                 edges.append(Edge(start_node, end_node))
+                reachable_nodes.add(start_node)
+                reachable_nodes.add(end_node)
 
-    return edges
+    return edges, reachable_nodes
 
 
-def create_dot_file(nodes, edges):
+def create_dot_file(nodes, edges, reachable_nodes):
     filename = '.'.join(args.outfile.split('.')[:-1])
 
     with open('{}.dot'.format(filename), 'wt', encoding='utf-8') as f:
@@ -146,6 +149,8 @@ def create_dot_file(nodes, edges):
         f.write('    overlap=scalexy\n\n') # scale graph in x/y to stop overlap
         f.write('    node [shape=Mrecord, fontsize=12]\n\n')
         for n in nodes:
+            if args.ignore_noedges and n not in reachable_nodes:
+                continue
             if not args.no_color:
                 if n.filetype == 'source':
                     if n.highlight:
@@ -265,6 +270,11 @@ def parse_arguments():
         action='store_true',
         help='do not use colors to highlight source and header files')
 
+    parser.add_argument('-i', '--ignore-no-edges',
+        dest='ignore_noedges',
+        action='store_true',
+        help='ignore nodes without any edges connected')
+
     parser.add_argument('-m', '--must-include',
         dest='must_include',
         action='store_true',
@@ -295,9 +305,9 @@ def main():
 
     files = get_files(valid_exts)
     nodes = get_nodes(files)
-    edges = get_edges(nodes)
+    edges, reachable_nodes = get_edges(nodes)
 
-    create_dot_file(nodes, edges)
+    create_dot_file(nodes, edges, reachable_nodes)
 
     retcode = create_graphic()
 
