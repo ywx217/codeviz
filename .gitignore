@@ -1,0 +1,6 @@
+# python ignores
+*.egg-info/
+__pycache__/
+build/
+dist/
+install-record.txt
